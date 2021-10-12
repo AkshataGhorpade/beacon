@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "557841410531",
+    "project_id": "beaconproject-a7748",
+    "storage_bucket": "beaconproject-a7748.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:557841410531:android:4813aec6e4ba5be02598d6",
+        "android_client_info": {
+          "package_name": "com.umair.beacons_plugin_example"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "557841410531-dr0kimq0ftv1ajj19ru67cv0j2b88t6l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbXf3q8Pguj7zZi5cMb0Xk8w0sNiNtxFc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "557841410531-dr0kimq0ftv1ajj19ru67cv0j2b88t6l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
