@@ -1,4 +1,4 @@
-import 'package:beacons_plugin_example/custom_colors.dart';
+import 'package:beacons_plugin_example/res/custom_colors.dart';
 import 'package:flutter/material.dart';
 
 class CustomFormField extends StatelessWidget {

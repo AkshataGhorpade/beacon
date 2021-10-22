@@ -1,5 +1,5 @@
-import 'package:beacons_plugin_example/login_form.dart';
-import 'package:beacons_plugin_example/login_screen.dart';
+import 'package:beacons_plugin_example/widgets/login_form.dart';
+import 'package:beacons_plugin_example/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {

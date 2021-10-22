@@ -1,6 +1,6 @@
 
-import 'package:beacons_plugin_example/custom_colors.dart';
-import 'package:beacons_plugin_example/login_form.dart';
+import 'package:beacons_plugin_example/res/custom_colors.dart';
+import 'package:beacons_plugin_example/widgets/login_form.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -49,13 +49,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           fontSize: 40,
                         ),
                       ),
-                      // Text(
-                      //   'CRUD Assignment',
-                      //   style: TextStyle(
-                      //     color: CustomColors.firebaseOrange,
-                      //     fontSize: 40,
-                      //   ),
-                      // ),
                     ],
                   ),
                 ),

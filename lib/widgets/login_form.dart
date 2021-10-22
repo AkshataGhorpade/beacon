@@ -1,8 +1,7 @@
-import 'package:beacons_plugin_example/custom_colors.dart';
-import 'package:beacons_plugin_example/dashboard.dart';
-import 'package:beacons_plugin_example/database.dart';
-import 'package:beacons_plugin_example/main.dart';
-import 'package:beacons_plugin_example/validator.dart';
+import 'package:beacons_plugin_example/res/custom_colors.dart';
+import 'package:beacons_plugin_example/screens/dashboard.dart';
+import 'package:beacons_plugin_example/utils/database.dart';
+import 'package:beacons_plugin_example/utils/validator.dart';
 import 'package:flutter/material.dart';
 import 'custom_form_field.dart';
 
