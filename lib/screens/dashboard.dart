@@ -4,6 +4,7 @@ import 'dart:io' show Platform;
 import 'package:beacons_plugin_example/models/beaconadsmodel.dart';
 import 'package:beacons_plugin_example/res/custom_colors.dart';
 import 'package:beacons_plugin_example/widgets/notification.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:intl/intl.dart';
 import 'package:beacons_plugin/beacons_plugin.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   new FlutterLocalNotificationsPlugin();
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
 
   String _beaconResult = 'Not Scanned Yet.';
   int _nrMessagesReceived = 0;
@@ -35,11 +37,19 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
   final StreamController<String> beaconEventsController =
   StreamController<String>.broadcast();
 
+
+  void pushFCMtoken() async {
+    String token=await messaging.getToken();
+    print(token);
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addObserver(this);
     initPlatformState();
+    pushFCMtoken();
+    initMessaging();
     scan();
     // initialise the plugin.
     var initializationSettingsAndroid =
@@ -50,7 +60,29 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
         android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: null);
+
   }
+
+  void initMessaging() {
+    var androiInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    var iosInit = IOSInitializationSettings();
+    var initSetting = InitializationSettings(android: androiInit, iOS: iosInit);
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    flutterLocalNotificationsPlugin.initialize(initSetting);
+    var androidDetails =
+    AndroidNotificationDetails('1', 'channelName', 'channel Description');
+    var iosDetails = IOSNotificationDetails();
+    var generalNotificationDetails =
+    NotificationDetails(android: androidDetails, iOS: iosDetails);
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification notification=message.notification;
+      AndroidNotification android=message.notification?.android;
+      if(notification!=null && android!=null){
+        flutterLocalNotificationsPlugin.show(
+            notification.hashCode, notification.title, notification.body, generalNotificationDetails);
+      }});}
+
+
 
   Future<void> scan() async {
     if (isRunning) {
@@ -76,6 +108,7 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
     WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
   }
+
 
 //Location Permission
   Future<void> initPlatformState() async {
