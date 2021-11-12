@@ -188,7 +188,6 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
 
     //Send 'true' to run in background
     await BeaconsPlugin.runInBackground(true);
-
     if (Platform.isAndroid) {
       BeaconsPlugin.channel.setMethodCallHandler((call) async {
         if (call.method == 'scannerReady') {
@@ -206,7 +205,6 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
         isRunning = true;
       });
     }
-
     if (!mounted) return;
   }
 
