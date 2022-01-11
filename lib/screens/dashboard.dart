@@ -22,8 +22,9 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  new FlutterLocalNotificationsPlugin();
+  // intilizion local notification
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+  //create instance for firebase messaging
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
   String _beaconResult = 'Not Scanned Yet.';
@@ -34,8 +35,7 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
 
   final ScrollController _scrollController = ScrollController();
 
-  final StreamController<String> beaconEventsController =
-  StreamController<String>.broadcast();
+  final StreamController<String> beaconEventsController = StreamController<String>.broadcast();
 
 
   void pushFCMtoken() async {
@@ -50,6 +50,7 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
     initPlatformState();
     pushFCMtoken();
     initMessaging();
+    //monitoring beacon status
     scan();
     // initialise the plugin.
     var initializationSettingsAndroid =
@@ -83,7 +84,7 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
       }});}
 
 
-
+//monitoring beacon status
   Future<void> scan() async {
     if (isRunning) {
       await BeaconsPlugin.stopMonitoring();
@@ -99,11 +100,13 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
+    //application state
     _isInForeground = state == AppLifecycleState.resumed;
   }
 
   @override
   void dispose() {
+    //beaconcontroller closed
     beaconEventsController.close();
     WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
@@ -117,30 +120,30 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
       await BeaconsPlugin.setDisclosureDialogMessage(
           title: "Need Location Permission",
           message: "This app collects location data to work with beacons.");
-
     }
 
     BeaconsPlugin.listenToBeacons(beaconEventsController);
     //Adding region
+    await BeaconsPlugin.addRegion("Beacon2201", "e2c56db5-dffb-48d2-b060-d0f5a71096e0");
     await BeaconsPlugin.addRegion(
-        "BeaconType1", "e2c56db5-dffb-48d2-b060-d0f5a71096e0");
-
-
+        "Beacon2031", "b9407f30-f5f8-466e-aff9-25556b57fe6d");
+    await BeaconsPlugin.addRegion(
+        "Beacon2050", "74278bda-b644-4520-8f0c-720eaf059935");
     //Adding beaconlayout
-    BeaconsPlugin.addBeaconLayoutForAndroid(
-        "m:2-3=beac,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25");
+    BeaconsPlugin.addBeaconLayoutForAndroid("m:2-3=beac,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25");
 
-
+    //foreground scan period
     BeaconsPlugin.setForegroundScanPeriodForAndroid(
-        foregroundScanPeriod: 220000, foregroundBetweenScanPeriod: 60);
-
+        foregroundScanPeriod: 220000, foregroundBetweenScanPeriod: 6000);
+    //background scan period
     BeaconsPlugin.setBackgroundScanPeriodForAndroid(
-        backgroundScanPeriod: 220000, backgroundBetweenScanPeriod: 60);
+        backgroundScanPeriod: 220000, backgroundBetweenScanPeriod: 6000);
 
     beaconEventsController.stream.listen(
             (data) async {
+          //    checking the status and data from beacon pluging
           if (data.isNotEmpty && isRunning) {
-            setState(() {
+            setState((){
               _beaconResult = data;
               _results.add(_beaconResult);
               _nrMessagesReceived++;
@@ -148,36 +151,38 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
 
             //fetching beacon data from api
             if (data!=null) {
+              // taking distance from the json
               String distance = jsonDecode(data)['distance'];
               double myDouble = double.parse(distance);
+              String strUUID = jsonDecode(data)['uuid'];
 
-              // notification
+              // getting list of beacons data from database
               List<beaconadsmodel> lstData=await Database.getBeacons();
               String ads="";
               String pizzahut="";
               String titleval="";
-
+              //checking list is empty or not
               if(lstData != null && lstData.length != 0){
-                ads=lstData[0].ads;
-                pizzahut=lstData[0].pizzahut;
-                titleval= ads +""+pizzahut;
-              }
+                for(beaconadsmodel beaconItem in lstData){
 
-              if( myDouble >= 0){
+                  String strDocUuid=beaconItem.docUUID;
+                  if(strUUID==strDocUuid){
+                    ads=beaconItem.ads;
+                    pizzahut=beaconItem.pizzahut;
+                    titleval= ads +""+pizzahut;
+                    break;
+                  }
+                }
+
+              }
+              //display the notification from database
               new NotificationAlert().showNotification(titleval);
 
-              } if(0> myDouble && myDouble >= 2){
-                new NotificationAlert().showNotification(titleval);
-
-              }else if(2 > myDouble && myDouble >= 5){
-                new NotificationAlert().showNotification(titleval);
-              }
             }
-
+            // if application not in foreground we displaying below notification
             if (!_isInForeground) {
               new NotificationAlert().showNotification("Beacons DataReceived: " +  data);
             }
-
             print("Beacons DataReceived: " + data);
           }
         },
@@ -207,7 +212,7 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
     }
     if (!mounted) return;
   }
-
+  //UI
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -233,7 +238,7 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
     );
   }
 
-
+  //list of data
   Widget _buildResultsList() {
     return Scrollbar(
       isAlwaysShown: true,

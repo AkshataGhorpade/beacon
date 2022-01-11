@@ -12,13 +12,16 @@ class Database {
     List<beaconadsmodel> lstdata=new List<beaconadsmodel>();
     QuerySnapshot querySnap = await FirebaseFirestore.instance.collection('beacon').get();
     final List<DocumentSnapshot> documentsval = querySnap.docs;
+
       if(documentsval != null && documentsval.length != 0){
       for (var beaconval in documentsval) {
+        String strUUID=beaconval.id;
         String ads = beaconval.data()["ads"];
         String pizzahut = beaconval.data()["pizzahut"];
         beaconadsmodel nn=new beaconadsmodel();
         nn.ads=ads;
         nn.pizzahut=pizzahut;
+        nn.docUUID=strUUID;
         lstdata.add(nn);
       }
     }
