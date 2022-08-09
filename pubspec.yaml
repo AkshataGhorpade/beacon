@@ -10,11 +10,11 @@ dependencies:
     sdk: flutter
 
 
-  cupertino_icons: ^0.1.2
+  cupertino_icons: ^1.0.5
   intl: ^0.17.0
   flutter_local_notifications: ^5.0.0
 #beacon plugin
-  beacons_plugin: ^2.0.1
+  beacons_plugin: 2.0.8
 #firebase plugin
   firebase_core: ^1.0.1
   cloud_firestore: ^1.0.1

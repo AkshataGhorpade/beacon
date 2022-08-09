@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' show Platform;
+import 'dart:io' show Platform, sleep;
 import 'package:beacons_plugin_example/models/beaconadsmodel.dart';
 import 'package:beacons_plugin_example/res/custom_colors.dart';
 import 'package:beacons_plugin_example/widgets/notification.dart';
@@ -23,7 +23,8 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
   // intilizion local notification
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      new FlutterLocalNotificationsPlugin();
   //create instance for firebase messaging
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
@@ -35,11 +36,11 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
 
   final ScrollController _scrollController = ScrollController();
 
-  final StreamController<String> beaconEventsController = StreamController<String>.broadcast();
-
+  final StreamController<String> beaconEventsController =
+      StreamController<String>.broadcast();
 
   void pushFCMtoken() async {
-    String token=await messaging.getToken();
+    String token = await messaging.getToken();
     print(token);
   }
 
@@ -54,14 +55,13 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
     scan();
     // initialise the plugin.
     var initializationSettingsAndroid =
-    new AndroidInitializationSettings('app_icon');
+        new AndroidInitializationSettings('app_icon');
     var initializationSettingsIOS =
-    IOSInitializationSettings(onDidReceiveLocalNotification: null);
+        IOSInitializationSettings(onDidReceiveLocalNotification: null);
     var initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: null);
-
   }
 
   void initMessaging() {
@@ -71,18 +71,19 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     flutterLocalNotificationsPlugin.initialize(initSetting);
     var androidDetails =
-    AndroidNotificationDetails('1', 'channelName', 'channel Description');
+        AndroidNotificationDetails('1', 'channelName', 'channel Description');
     var iosDetails = IOSNotificationDetails();
     var generalNotificationDetails =
-    NotificationDetails(android: androidDetails, iOS: iosDetails);
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification notification=message.notification;
-      AndroidNotification android=message.notification?.android;
-      if(notification!=null && android!=null){
-        flutterLocalNotificationsPlugin.show(
-            notification.hashCode, notification.title, notification.body, generalNotificationDetails);
-      }});}
-
+      RemoteNotification notification = message.notification;
+      AndroidNotification android = message.notification?.android;
+      if (notification != null && android != null) {
+        flutterLocalNotificationsPlugin.show(notification.hashCode,
+            notification.title, notification.body, generalNotificationDetails);
+      }
+    });
+  }
 
 //monitoring beacon status
   Future<void> scan() async {
@@ -112,7 +113,6 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
     super.dispose();
   }
 
-
 //Location Permission
   Future<void> initPlatformState() async {
     if (Platform.isAndroid) {
@@ -120,18 +120,23 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
       await BeaconsPlugin.setDisclosureDialogMessage(
           title: "Need Location Permission",
           message: "This app collects location data to work with beacons.");
+      await Future.delayed(Duration(seconds: 10));
     }
 
     BeaconsPlugin.listenToBeacons(beaconEventsController);
     //Adding region
-    await BeaconsPlugin.addRegion("Beacon2201", "e2c56db5-dffb-48d2-b060-d0f5a71096e0");
+    await BeaconsPlugin.addRegion(
+        "Beacon2201", "e2c56db5-dffb-48d2-b060-d0f5a71096e0");
     await BeaconsPlugin.addRegion(
         "Beacon2031", "b9407f30-f5f8-466e-aff9-25556b57fe6d");
     await BeaconsPlugin.addRegion(
         "Beacon2050", "74278bda-b644-4520-8f0c-720eaf059935");
-    //Adding beaconlayout
-    BeaconsPlugin.addBeaconLayoutForAndroid("m:2-3=beac,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25");
+    await Future.delayed(Duration(seconds: 2));
 
+    //Adding beaconlayout
+    BeaconsPlugin.addBeaconLayoutForAndroid(
+        "m:2-3=beac,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25");
+    await Future.delayed(Duration(seconds: 2));
     //foreground scan period
     BeaconsPlugin.setForegroundScanPeriodForAndroid(
         foregroundScanPeriod: 220000, foregroundBetweenScanPeriod: 6000);
@@ -140,48 +145,46 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
         backgroundScanPeriod: 220000, backgroundBetweenScanPeriod: 6000);
 
     beaconEventsController.stream.listen(
-            (data) async {
+        (data) async {
           //    checking the status and data from beacon pluging
           if (data.isNotEmpty && isRunning) {
-            setState((){
+            setState(() {
               _beaconResult = data;
               _results.add(_beaconResult);
               _nrMessagesReceived++;
             });
 
             //fetching beacon data from api
-            if (data!=null) {
+            if (data != null) {
               // taking distance from the json
               String distance = jsonDecode(data)['distance'];
               double myDouble = double.parse(distance);
               String strUUID = jsonDecode(data)['uuid'];
 
               // getting list of beacons data from database
-              List<beaconadsmodel> lstData=await Database.getBeacons();
-              String ads="";
-              String pizzahut="";
-              String titleval="";
+              List<beaconadsmodel> lstData = await Database.getBeacons();
+              String ads = "";
+              String pizzahut = "";
+              String titleval = "";
               //checking list is empty or not
-              if(lstData != null && lstData.length != 0){
-                for(beaconadsmodel beaconItem in lstData){
-
-                  String strDocUuid=beaconItem.docUUID;
-                  if(strUUID==strDocUuid){
-                    ads=beaconItem.ads;
-                    pizzahut=beaconItem.pizzahut;
-                    titleval= ads +""+pizzahut;
+              if (lstData != null && lstData.length != 0) {
+                for (beaconadsmodel beaconItem in lstData) {
+                  String strDocUuid = beaconItem.docUUID;
+                  if (strUUID == strDocUuid) {
+                    ads = beaconItem.ads;
+                    pizzahut = beaconItem.pizzahut;
+                    titleval = ads + "" + pizzahut;
                     break;
                   }
                 }
-
               }
               //display the notification from database
               new NotificationAlert().showNotification(titleval);
-
             }
             // if application not in foreground we displaying below notification
             if (!_isInForeground) {
-              new NotificationAlert().showNotification("Beacons DataReceived: " +  data);
+              new NotificationAlert()
+                  .showNotification("Beacons DataReceived: " + data);
             }
             print("Beacons DataReceived: " + data);
           }
@@ -196,7 +199,8 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
     if (Platform.isAndroid) {
       BeaconsPlugin.channel.setMethodCallHandler((call) async {
         if (call.method == 'scannerReady') {
-          new NotificationAlert().showNotification("Beacons monitoring started..");
+          new NotificationAlert()
+              .showNotification("Beacons monitoring started..");
           await BeaconsPlugin.startMonitoring();
           setState(() {
             isRunning = true;
@@ -212,6 +216,7 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
     }
     if (!mounted) return;
   }
+
   //UI
   @override
   Widget build(BuildContext context) {
@@ -257,16 +262,16 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
         itemBuilder: (context, index) {
           DateTime now = DateTime.now();
           String formattedDate =
-          DateFormat('yyyy-MM-dd – kk:mm:ss.SSS').format(now);
+              DateFormat('yyyy-MM-dd – kk:mm:ss.SSS').format(now);
           final item = ListTile(
               title: Text(
                 "Time: $formattedDate\n${_results[index]}",
                 textAlign: TextAlign.justify,
                 style: Theme.of(context).textTheme.headline4?.copyWith(
-                  fontSize: 14,
-                  color: CustomColors.firebaseYellow,
-                  fontWeight: FontWeight.normal,
-                ),
+                      fontSize: 14,
+                      color: CustomColors.firebaseYellow,
+                      fontWeight: FontWeight.normal,
+                    ),
               ),
               onTap: () {});
           return item;
