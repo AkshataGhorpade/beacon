@@ -120,7 +120,7 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver {
       await BeaconsPlugin.setDisclosureDialogMessage(
           title: "Need Location Permission",
           message: "This app collects location data to work with beacons.");
-      await Future.delayed(Duration(seconds: 10));
+      await Future.delayed(Duration(seconds: 5));
     }
 
     BeaconsPlugin.listenToBeacons(beaconEventsController);
